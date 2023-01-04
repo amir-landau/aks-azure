@@ -33,4 +33,4 @@ resource "helm_release" "ingress_controller" {
 
 
 #az aks get-credentials --resource-group terraform-aks --name aks
-#helm upgrade --install nginx helm/nginx
+#helm upgrade --install nginx helm/app
