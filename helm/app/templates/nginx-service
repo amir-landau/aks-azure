@@ -5,10 +5,10 @@ metadata:
   labels:
     {{- include "nginx.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.flask.service.type }}
+  type: {{ .Values.nginx.service.type }}
   ports:
-    - port: {{ .Values.flask.service.port }}
-      targetPort: {{ .Values.flask.image.containerPort }}
+    - port: {{ .Values.nginx.service.port }}
+      targetPort: {{ .Values.nginx.image.containerPort }}
       protocol: TCP
       name: http
   selector:

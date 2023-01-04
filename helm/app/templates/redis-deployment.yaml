@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "nginx.fullname" . }}
+  name: {{ .Values.redis.name }}
   labels:
-    {{- include "nginx.labels" . | nindent 4 }}
+    app: {{ .Values.redis.name }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.redis.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "nginx.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.redis.name }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "nginx.selectorLabels" . | nindent 8 }}
+        app: {{ .Values.redis.name }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -28,28 +28,23 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Values.redis.name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag | default .Chart.AppVersion }}"
-          env:
-            {{- range .Values.flask.image.env }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
-            {{- end }}
-          imagePullPolicy: {{ .Values.flask.image.pullPolicy }}
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.flask.image.containerPort }}
+              containerPort: {{ .Values.redis.image.containerPort }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+  #        livenessProbe:
+  #          httpGet:
+  #            path: /
+  #            port: http
+  #        readinessProbe:
+  #          httpGet:
+  #            path: /
+  #            port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

@@ -2,14 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
-
 flask:
+  name: flask
+  replicaCount: 1
   image:
     repository:  1372022/flask
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 1
+    tag: latest
     containerPort: 5000
     env:
       - name: REDIS_HOST
@@ -25,9 +25,9 @@ flask:
     port: 80
 
 
-
 redis:
   name: redis
+  replicaCount: 1
   image:
     repository: redis
     pullPolicy: IfNotPresent
@@ -40,10 +40,10 @@ redis:
     type: ClusterIP
     port: 6379
 
-httpd:
-  name: httpd
+nginx:
+  replicaCount: 1
   image:
-    repository:  httpd
+    repository:  nginx
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
@@ -96,11 +96,11 @@ ingress:
               port:
                 number: 80
                 
-        - path: /httpd
+        - path: /flask
           pathType: Prefix
           backend:
             service:
-              name: httpd
+              name: flask
               port:
                 number: 80
   tls: []

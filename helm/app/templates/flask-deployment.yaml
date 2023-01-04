@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.httpd.name }}
+  name: {{ .Values.flask.name }}
   labels:
-    app: {{ .Values.httpd.name }}
+    app: {{ .Values.flask.name }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.flask.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      app: {{ .Values.httpd.name }}
+      app: {{ .Values.flask.name }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app: {{ .Values.httpd.name }}
+        app: {{ .Values.flask.name }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -28,14 +28,19 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Values.httpd.name }}
+        - name: {{ .Values.flask.name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.httpd.image.repository }}:{{ .Values.httpd.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.httpd.image.pullPolicy }}
+          image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag | default .Chart.AppVersion }}"
+          env:
+            {{- range .Values.flask.image.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          imagePullPolicy: {{ .Values.flask.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.httpd.image.containerPort }}
+              containerPort: {{ .Values.flask.image.containerPort }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -59,4 +64,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
